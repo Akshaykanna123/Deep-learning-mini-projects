@@ -1,26 +1,26 @@
 import numpy as np
 from keras.models import Sequential
-from keras.layers import Dense
-from sklearn.datasets import load_iris
-from sklearn.preprocessing import OneHotEncoder
+from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
+from keras.datasets import mnist
+from keras.utils import to_categorical
 
-data = load_iris()
-X = data.data
-y = data.target.reshape(-1,1)
+(X_train, y_train), (X_test, y_test) = mnist.load_data()
 
-enc = OneHotEncoder(sparse_output=False)
-y = enc.fit_transform(y)
+X_train = X_train.reshape(-1,28,28,1) / 255.0
+X_test = X_test.reshape(-1,28,28,1) / 255.0
 
-np.random.seed(0)
+y_train = to_categorical(y_train, 10)
+y_test = to_categorical(y_test, 10)
 
 model = Sequential()
-model.add(Dense(5, input_dim=4, activation='relu'))
-model.add(Dense(3, activation='softmax'))
+model.add(Conv2D(32, (3,3), activation='relu', input_shape=(28,28,1)))
+model.add(MaxPooling2D((2,2)))
+model.add(Flatten())
+model.add(Dense(10, activation='softmax'))
 
-model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+model.compile(optimizer='adam',loss='categorical_crossentropy,metrics=['accuracy'])
 
-model.fit(X, y, epochs=100, verbose=0)
+model.fit(X_train, y_train, epochs=3, verbose=1)
 
-preds = model.predict(X[:5])
-
-print(np.round(preds))
+loss, acc = model.evaluate(X_test, y_test)
+print("Accuracy:", acc)
