@@ -8,8 +8,10 @@ data = load_iris()
 X = data.data
 y = data.target.reshape(-1,1)
 
-enc = OneHotEncoder(sparse=False)
+enc = OneHotEncoder(sparse_output=False)
 y = enc.fit_transform(y)
+
+np.random.seed(0)
 
 model = Sequential()
 model.add(Dense(5, input_dim=4, activation='relu'))
@@ -19,4 +21,6 @@ model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accur
 
 model.fit(X, y, epochs=100, verbose=0)
 
-print(np.argmax(model.predict(X[:5]), axis=1))
+preds = model.predict(X[:5])
+
+print(np.round(preds))
